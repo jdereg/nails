@@ -1,0 +1,5 @@
+.idea
+*.iml
+target
+CprLocal.properties
+atlassian-ide-plugin.xml

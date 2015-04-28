@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+  	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <bean name="nailsController" class="com.cedarsoftware.nails.controller.NailsController">
+        <constructor-arg>
+            <bean class="com.cedarsoftware.nails.service.NailsService" />
+        </constructor-arg>
+    </bean>
+
+
+    <bean id="nailsTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="nailsDataSource" />
+    </bean>
+
+    <tx:advice id="nailsTxAdvice" transaction-manager="nailsTransactionManager">
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRED"/>
+            <tx:method name="get*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="is*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="has*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="does*" propagation="REQUIRED" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="nailsServiceMethods" expression="execution(* com.cedarsoftware.nails.service.NailsService.*(..))"/>
+        <aop:advisor advice-ref="nailsTxAdvice" pointcut-ref="nailsServiceMethods"/>
+    </aop:config>
+
+    <!--
+    p:username="execdash"
+    p:password="puCupRaQaZe3"
+    -->
+
+    <bean id="connectionProvider" class="com.cedarsoftware.nails.util.SpringConnectionProvider">
+        <constructor-arg ref="nailsDataSource" />
+    </bean>
+
+    <bean id="persister" class="com.cedarsoftware.ncube.NCubeJdbcPersisterAdapter">
+        <constructor-arg ref="connectionProvider" />
+    </bean>
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod" value="com.cedarsoftware.ncube.NCubeManager.setNCubePersister"/>
+        <property name="arguments">
+            <list>
+                <ref bean="persister"/>
+            </list>
+        </property>
+    </bean>
+
+    <!--
+        When using mysql as your test database, set an environment variable spring.profiles.active=mysql
+        The profiles list can be comma separated if you need more than one profile
+    -->
+
+    <!--<bean id="ncubeDataSource" destroy-method="close" class="org.apache.tomcat.jdbc.pool.DataSource"-->
+    <!--p:driverClassName="com.mysql.jdbc.Driver"-->
+    <!--p:url="jdbc:mysql://ncube-mysql.cqtxgllfhqxm.us-east-1.rds.amazonaws.com:3306/ncube"-->
+    <!--p:username="ncube"-->
+    <!--p:password="ncubencube"-->
+    <!--p:initialSize="5"-->
+    <!--p:minIdle="5"-->
+    <!--p:maxIdle="10"-->
+    <!--p:maxActive="100"-->
+    <!--p:maxWait="120000"-->
+    <!--p:jmxEnabled="true"-->
+    <!--p:removeAbandoned="true"-->
+    <!--p:removeAbandonedTimeout="180"-->
+    <!--p:testOnBorrow="true"-->
+    <!--p:testOnReturn="false"-->
+    <!--p:testWhileIdle="false"-->
+    <!--p:timeBetweenEvictionRunsMillis="30000"-->
+    <!--p:minEvictableIdleTimeMillis="30000"-->
+    <!--p:validationInterval="60000"-->
+    <!--p:validationQuery="/* ping */">-->
+    <!--</bean>-->
+
+    <bean id="nailsDataSource"
+          destroy-method="close"
+          class="org.apache.tomcat.jdbc.pool.DataSource"
+          p:driverClassName="oracle.jdbc.driver.OracleDriver"
+          p:url="jdbc:oracle:thin:@dm01np-scan.td.afg:1521/app_ncubed.dev.gai.com"
+          p:username="nce"
+          p:password="quality"
+          p:initialSize="5"
+          p:minIdle="5"
+          p:maxIdle="10"
+          p:maxActive="100"
+          p:maxWait="120000"
+          p:jmxEnabled="true"
+          p:removeAbandoned="true"
+          p:removeAbandonedTimeout="180"
+          p:testOnBorrow="true"
+          p:testOnReturn="false"
+          p:testWhileIdle="false"
+          p:timeBetweenEvictionRunsMillis="30000"
+          p:minEvictableIdleTimeMillis="30000"
+          p:validationInterval="60000"
+          p:validationQuery="select 1 from dual">
+    </bean>
+
+    <beans profile="mysql">
+        <bean id="nailsDataSource" destroy-method="close" class="org.apache.tomcat.jdbc.pool.DataSource"
+              p:driverClassName="com.mysql.jdbc.Driver"
+              p:url="jdbc:mysql://localhost:3306/ncube"
+              p:username="ncube"
+              p:password="ncube"
+              p:initialSize="5"
+              p:minIdle="5"
+              p:maxIdle="10"
+              p:maxActive="100"
+              p:maxWait="120000"
+              p:jmxEnabled="true"
+              p:removeAbandoned="true"
+              p:removeAbandonedTimeout="180"
+              p:testOnBorrow="true"
+              p:testOnReturn="false"
+              p:testWhileIdle="false"
+              p:timeBetweenEvictionRunsMillis="30000"
+              p:minEvictableIdleTimeMillis="30000"
+              p:validationInterval="60000"
+              p:validationQuery="/* ping */">
+        </bean>
+    </beans>
+
+    <beans profile="exa-dev">
+        <bean id="nailsDataSource" destroy-method="close"
+              class="org.apache.tomcat.jdbc.pool.DataSource"
+              p:driverClassName="oracle.jdbc.driver.OracleDriver"
+              p:url="jdbc:oracle:thin:@dm01np-scan.td.afg:1521/app_ncubed.dev.gai.com"
+              p:username="nce"
+              p:password="quality"
+              p:initialSize="5"
+              p:minIdle="5"
+              p:maxIdle="10"
+              p:maxActive="100"
+              p:maxWait="120000"
+              p:jmxEnabled="true"
+              p:removeAbandoned="true"
+              p:removeAbandonedTimeout="180"
+              p:testOnBorrow="true"
+              p:testOnReturn="false"
+              p:testWhileIdle="false"
+              p:timeBetweenEvictionRunsMillis="30000"
+              p:minEvictableIdleTimeMillis="30000"
+              p:validationInterval="60000"
+              p:validationQuery="select 1 from dual">
+        </bean>
+    </beans>
+
+    <beans profile="exa-prod">
+        <bean id="nailsDataSource" destroy-method="close"
+              class="org.apache.tomcat.jdbc.pool.DataSource"
+              p:driverClassName="oracle.jdbc.driver.OracleDriver"
+              p:url="jdbc:oracle:thin:@dm01-scan.td.afg:1521/app_ncubep.prod.gai.com"
+              p:username="nce"
+              p:password="quality"
+              p:initialSize="5"
+              p:minIdle="5"
+              p:maxIdle="10"
+              p:maxActive="100"
+              p:maxWait="120000"
+              p:jmxEnabled="true"
+              p:removeAbandoned="true"
+              p:removeAbandonedTimeout="180"
+              p:testOnBorrow="true"
+              p:testOnReturn="false"
+              p:testWhileIdle="false"
+              p:timeBetweenEvictionRunsMillis="30000"
+              p:minEvictableIdleTimeMillis="30000"
+              p:validationInterval="60000"
+              p:validationQuery="select 1 from dual">
+        </bean>
+    </beans>
+
+
+    <!-- to add cpr provider -->
+</beans>
