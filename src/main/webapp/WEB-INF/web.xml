@@ -36,7 +36,7 @@
         </init-param>
         <init-param>
             <param-name>app</param-name>
-            <param-value>UD.REF.APP</param-value>
+            <param-value>Nails</param-value>
         </init-param>
     </servlet>
 
