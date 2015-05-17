@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <targetJdk>1.7</targetJdk>
         <version.spring>4.1.6.RELEASE</version.spring>
-        <version.java-util>1.19.1</version.java-util>
+        <version.java-util>1.19.3</version.java-util>
         <version.json-io>3.0.2</version.json-io>
         <version.servlet>2.5</version.servlet>
         <version.log4j>2.1</version.log4j>
